@@ -1,6 +1,3 @@
-// Chunk size might not be optimal. It has been found that really small chunk sizes
-// have a (very) negative impact on performance, other than that, not much experimentation
-// has been done with the chunk sizes.
 interface infinityProps {
   position: {
     x: number;
@@ -23,15 +20,27 @@ interface infinityProps {
   loadChunk: (chunkId: string | number, chunk: any) => void;
 }
 
+/** Creates a infinite canvas board.
+ *
+ * `ctx` Canvas Context
+ *
+ * `debug` debug program
+ *
+ * `chunkWidth` width of each chunk
+ *
+ * `chunkHeight` height of each chunk
+ *
+ * !`Warning about small chunks` It has been found that really small chunk sizes have a (very) negative impact on performance.
+ */
 function infiniteCanvas(
   ctx: CanvasRenderingContext2D,
-  debug?: boolean,
-  chunkWidth?: number,
-  chunkHeight?: number
+  debug: boolean = false,
+  chunkWidth: number = 500,
+  chunkHeight: number = 500
 ) {
   var configuration = {
-    chunkWidth: chunkWidth ?? 500,
-    chunkHeight: chunkHeight ?? 500,
+    chunkWidth: chunkWidth,
+    chunkHeight: chunkHeight,
     debugMode: false,
   };
 
@@ -44,7 +53,6 @@ function infiniteCanvas(
   var canvas = ctx.canvas;
 
   const moveBy = function (dx: number, dy: number, render?: boolean) {
-    // default `render` to true, only skip rendering when it's false
     render = render === undefined ? true : render;
     infinity.position.x += dx;
     infinity.position.y += dy;
@@ -73,16 +81,29 @@ function infiniteCanvas(
     };
   }
 
+  /** Takes a position in the world (x,y)
+   *
+   * `x` axis coordinate
+   *
+   * `y` axis coordinate
+   *
+   * `returns` corresponding (x, y) coordinates in the chunk
+   */
   function worldCoordinatesToChunkCoordinates(x: number, y: number) {
-    // Takes a position in the world
-    // returns the coordinate of the grid this position lies in
-
     return {
       x: Math.floor(x / configuration.chunkWidth),
       y: Math.floor(y / configuration.chunkHeight),
     };
   }
 
+  /** Takes a position in the chunk this position lies in (x,y)
+   *
+   * `x` axis coordinate
+   *
+   * `y` axis coordinate
+   *
+   * `returns` corresponding (x, y) coordinates in the world
+   */
   function chunkCoordinatesToWorldCoordinates(x: number, y: number) {
     return {
       x: x * configuration.chunkWidth,
@@ -90,6 +111,14 @@ function infiniteCanvas(
     };
   }
 
+  /** Takes a chunk position (x,y)
+   *
+   * `x` axis coordinate
+   *
+   * `y` axis coordinate
+   *
+   * `returns` corresponding (x, y) coordinates in the viewport
+   */
   function chunkCoordinatesToRenderCoordinates(x: number, y: number) {
     // Takes a chunk position
     // returns corresponding (x, y) coordinates in the viewport
@@ -321,3 +350,4 @@ window.infiniteCanvas = {
 };
 
 export default infiniteCanvas;
+export type { infinityProps };
