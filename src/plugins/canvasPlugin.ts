@@ -123,14 +123,21 @@ function infiniteCanvas(
     };
   }
 
+  /**
+   * `chunkId` id for the chunk in string format "x,y"
+   *
+   * Serializes the coordinate of a chunk with a key, computed from its x and y coordinates
+   *
+   * Example: a chunk at {x: 1, y: 3}, then our chunks dict looks like:
+   *
+   * {
+   * ...
+   * "1, 3": ..chunkData
+   * ...
+   * }
+   *
+   */
   function getChunk(chunkId: string) {
-    // we serialize the coordinate of a chunk with a key, computed from its x and y coordinates
-    // say we have a chunk at {x: 1, y: 3}, then our chunks dict looks like
-    // {
-    //  ...
-    //  "1, 3": ..chunkData
-    //  ...
-    // }
     // if the chunk doesn't exist, create it!
     if (!infinity.chunks[chunkId]) {
       infinity.chunks[chunkId] = new Image(
@@ -138,8 +145,6 @@ function infiniteCanvas(
         _configuration.chunkHeight
       );
     }
-
-    // now that we're sure that it exists, return the motherfucker <3
     return infinity.chunks[chunkId];
   }
 
@@ -356,10 +361,6 @@ function infiniteCanvas(
 
   return infinity;
 }
-
-window.infiniteCanvas = {
-  initialize: infiniteCanvas,
-};
 
 export default infiniteCanvas;
 export type { infinityProps };
