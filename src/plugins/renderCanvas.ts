@@ -11,7 +11,7 @@ const render = () => {
   var inf_ctx = infiniteCanvas(ctx);
   var mouseIsDown = false;
   var middleOrRightIsDown = false;
-  var previousMousePosition: { x: any; y: any };
+  var previousMousePosition: { x: number; y: number };
   canvas.addEventListener("mousedown", function (event) {
     if (event.button === 0) {
       mouseIsDown = true;

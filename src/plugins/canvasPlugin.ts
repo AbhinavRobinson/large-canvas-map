@@ -17,9 +17,9 @@ interface infinityProps {
   };
   debugMode?: false;
   updateChunks?: () => void;
-  moveBy?: (dx: number, dy: number, render?: boolean) => void;
+  moveBy: (dx: number, dy: number, render?: boolean) => void;
   moveTo?: (x: number, y: number, render?: boolean) => void;
-  refresh?: () => void;
+  refresh: () => void;
   getAllChunks?: () => void;
   loadChunk?: (chunkId: string | number, chunk: any) => void;
 }
@@ -39,6 +39,22 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
 
   var canvas = ctx.canvas;
 
+  const moveBy = function (dx: number, dy: number, render?: boolean) {
+    // default `render` to true, only skip rendering when it's false
+    render = render === undefined ? true : render;
+    infinity.position.x += dx;
+    infinity.position.y += dy;
+
+    if (render) {
+      renderChunks(getChunksInViewport());
+    }
+  };
+
+  const refresh = function () {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    infinity.moveBy(0, 0);
+  };
+
   var infinity: infinityProps = {
     position: {
       x: 0,
@@ -50,6 +66,8 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
     ctx: ctx,
     configuration: configuration,
     debugMode: false,
+    moveBy,
+    refresh,
   };
 
   function constructChunkKey(x: number, y: number) {
@@ -266,15 +284,8 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
     });
   };
 
-  infinity.moveBy = function (dx: number, dy: number, render?: boolean) {
-    // default `render` to true, only skip rendering when it's false
-    render = render === undefined ? true : render;
-    infinity.position.x += dx;
-    infinity.position.y += dy;
-
-    if (render) {
-      renderChunks(getChunksInViewport());
-    }
+  infinity.getAllChunks = function () {
+    return infinity.chunks;
   };
 
   infinity.moveTo = function (x: number, y: number, render?: boolean) {
@@ -288,23 +299,10 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
     }
   };
 
-  infinity.refresh = function () {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (infinity.moveBy) {
-      infinity.moveBy(0, 0);
-    }
-  };
-
-  infinity.getAllChunks = function () {
-    return infinity.chunks;
-  };
-
   // expects a chunk-id, ex "2, 3" and an <img></img> with a src
   infinity.loadChunk = function (chunkId: string | number, chunk: any) {
     infinity.chunks[chunkId] = chunk;
-    if (infinity.refresh) {
-      infinity.refresh();
-    }
+    infinity.refresh();
   };
 
   return infinity;
