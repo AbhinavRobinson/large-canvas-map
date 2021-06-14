@@ -6,7 +6,6 @@ interface infinityProps {
     x: number;
     y: number;
   };
-  // stores ImageData per chunk, used to draw on
   chunks: { [key: string]: HTMLImageElement };
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -24,10 +23,15 @@ interface infinityProps {
   loadChunk: (chunkId: string | number, chunk: any) => void;
 }
 
-function infiniteCanvas(ctx: CanvasRenderingContext2D, debug?: boolean) {
+function infiniteCanvas(
+  ctx: CanvasRenderingContext2D,
+  debug?: boolean,
+  chunkWidth?: number,
+  chunkHeight?: number
+) {
   var configuration = {
-    chunkWidth: 500,
-    chunkHeight: 500,
+    chunkWidth: chunkWidth ?? 500,
+    chunkHeight: chunkHeight ?? 500,
     debugMode: false,
   };
 
