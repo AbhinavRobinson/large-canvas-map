@@ -15,16 +15,16 @@ interface infinityProps {
     chunkHeight: number;
     debugMode: boolean;
   };
-  debugMode?: false;
-  updateChunks?: () => void;
+  debugMode: boolean;
+  updateChunks: () => void;
   moveBy: (dx: number, dy: number, render?: boolean) => void;
-  moveTo?: (x: number, y: number, render?: boolean) => void;
+  moveTo: (x: number, y: number, render?: boolean) => void;
   refresh: () => void;
-  getAllChunks?: () => void;
-  loadChunk?: (chunkId: string | number, chunk: any) => void;
+  getAllChunks: () => void;
+  loadChunk: (chunkId: string | number, chunk: any) => void;
 }
 
-function initializeWorld(ctx: CanvasRenderingContext2D) {
+function infiniteCanvas(ctx: CanvasRenderingContext2D, debug?: boolean) {
   var configuration = {
     chunkWidth: 500,
     chunkHeight: 500,
@@ -53,21 +53,6 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
   const refresh = function () {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     infinity.moveBy(0, 0);
-  };
-
-  var infinity: infinityProps = {
-    position: {
-      x: 0,
-      y: 0,
-    },
-    // stores ImageData per chunk, used to draw on
-    chunks: {} as { [key: string]: HTMLImageElement },
-    canvas: canvas,
-    ctx: ctx,
-    configuration: configuration,
-    debugMode: false,
-    moveBy,
-    refresh,
   };
 
   function constructChunkKey(x: number, y: number) {
@@ -187,7 +172,7 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
   // =====================================
   //             API Methods
   // =====================================
-  infinity.updateChunks = function () {
+  const updateChunks = function () {
     // a way to speed up this method quite significantly is by preventing
     // updating chunks that did not change.
     // A really simple method would be to pass a bounding box to this function
@@ -284,11 +269,11 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
     });
   };
 
-  infinity.getAllChunks = function () {
+  const getAllChunks = function () {
     return infinity.chunks;
   };
 
-  infinity.moveTo = function (x: number, y: number, render?: boolean) {
+  const moveTo = function (x: number, y: number, render?: boolean) {
     // default `render` to true, only skip rendering when it's false
     render = render === undefined ? true : render;
     infinity.position.x = x;
@@ -300,16 +285,35 @@ function initializeWorld(ctx: CanvasRenderingContext2D) {
   };
 
   // expects a chunk-id, ex "2, 3" and an <img></img> with a src
-  infinity.loadChunk = function (chunkId: string | number, chunk: any) {
+  const loadChunk = function (chunkId: string | number, chunk: any) {
     infinity.chunks[chunkId] = chunk;
     infinity.refresh();
+  };
+
+  var infinity: infinityProps = {
+    position: {
+      x: 0,
+      y: 0,
+    },
+    // stores ImageData per chunk, used to draw on
+    chunks: {} as { [key: string]: HTMLImageElement },
+    canvas: canvas,
+    ctx: ctx,
+    configuration: configuration,
+    debugMode: debug ?? false,
+    updateChunks,
+    moveBy,
+    moveTo,
+    refresh,
+    getAllChunks,
+    loadChunk,
   };
 
   return infinity;
 }
 
 window.infiniteCanvas = {
-  initialize: initializeWorld,
+  initialize: infiniteCanvas,
 };
 
-export { initializeWorld };
+export default infiniteCanvas;

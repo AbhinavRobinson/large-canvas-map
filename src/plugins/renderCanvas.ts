@@ -1,17 +1,22 @@
-import { initializeWorld as infiniteCanvas } from "./canvasPlugin";
+import infiniteCanvas from "./canvasPlugin";
 
 const render = () => {
   var canvas = document.createElement("canvas");
+
   var ctx: CanvasRenderingContext2D = canvas.getContext(
     "2d"
   ) as CanvasRenderingContext2D;
+
   document.body.appendChild(canvas);
+
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+
   var inf_ctx = infiniteCanvas(ctx);
   var mouseIsDown = false;
   var middleOrRightIsDown = false;
   var previousMousePosition: { x: number; y: number };
+
   canvas.addEventListener("mousedown", function (event) {
     if (event.button === 0) {
       mouseIsDown = true;
@@ -19,6 +24,7 @@ const render = () => {
       middleOrRightIsDown = true;
     }
   });
+
   window.addEventListener("mouseup", function (event) {
     if (event.button === 0) {
       mouseIsDown = false;
