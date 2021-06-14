@@ -1,3 +1,4 @@
+// INTERFACE FOR INFINITE CANVAS
 interface infinityProps {
   position: {
     x: number;
@@ -38,40 +39,36 @@ function infiniteCanvas(
   chunkWidth: number = 500,
   chunkHeight: number = 500
 ) {
-  var configuration = {
+  // local config of canvas sandbox
+  var _configuration = {
     chunkWidth: chunkWidth,
     chunkHeight: chunkHeight,
     debugMode: false,
   };
 
-  var offscreenRenderCanvas = document.createElement("canvas");
-  var offscreenRenderCtx = offscreenRenderCanvas.getContext("2d");
+  // create canvas element
+  var _offscreenRenderCanvas = document.createElement("canvas");
 
-  offscreenRenderCanvas.width = configuration.chunkWidth;
-  offscreenRenderCanvas.height = configuration.chunkHeight;
+  // get context created
+  var _offscreenRenderCtx = _offscreenRenderCanvas.getContext("2d");
 
+  // assign chunk size to canvas element
+  _offscreenRenderCanvas.width = _configuration.chunkWidth;
+  _offscreenRenderCanvas.height = _configuration.chunkHeight;
+
+  // get canvas element from context
   var canvas = ctx.canvas;
 
-  const moveBy = function (dx: number, dy: number, render?: boolean) {
-    render = render === undefined ? true : render;
-    infinity.position.x += dx;
-    infinity.position.y += dy;
-
-    if (render) {
-      renderChunks(getChunksInViewport());
-    }
-  };
-
-  const refresh = function () {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    infinity.moveBy(0, 0);
-  };
-
+  /**
+   * @returns `key` {x,y} mapped to "x,y" string
+   */
   function constructChunkKey(x: number, y: number) {
-    // chunk keys look like "0, 1"
     return x.toString() + ", " + y.toString();
   }
 
+  /**
+   * @returns `key` "x,y" mapped to {x,y}
+   */
   function parseChunkKey(key: string) {
     var split = key.split(", ");
 
@@ -91,8 +88,8 @@ function infiniteCanvas(
    */
   function worldCoordinatesToChunkCoordinates(x: number, y: number) {
     return {
-      x: Math.floor(x / configuration.chunkWidth),
-      y: Math.floor(y / configuration.chunkHeight),
+      x: Math.floor(x / _configuration.chunkWidth),
+      y: Math.floor(y / _configuration.chunkHeight),
     };
   }
 
@@ -106,8 +103,8 @@ function infiniteCanvas(
    */
   function chunkCoordinatesToWorldCoordinates(x: number, y: number) {
     return {
-      x: x * configuration.chunkWidth,
-      y: y * configuration.chunkHeight,
+      x: x * _configuration.chunkWidth,
+      y: y * _configuration.chunkHeight,
     };
   }
 
@@ -120,11 +117,9 @@ function infiniteCanvas(
    * `returns` corresponding (x, y) coordinates in the viewport
    */
   function chunkCoordinatesToRenderCoordinates(x: number, y: number) {
-    // Takes a chunk position
-    // returns corresponding (x, y) coordinates in the viewport
     return {
-      x: x * configuration.chunkWidth - infinity.position.x,
-      y: y * configuration.chunkHeight - infinity.position.y,
+      x: x * _configuration.chunkWidth - infinity.position.x,
+      y: y * _configuration.chunkHeight - infinity.position.y,
     };
   }
 
@@ -139,8 +134,8 @@ function infiniteCanvas(
     // if the chunk doesn't exist, create it!
     if (!infinity.chunks[chunkId]) {
       infinity.chunks[chunkId] = new Image(
-        configuration.chunkWidth,
-        configuration.chunkHeight
+        _configuration.chunkWidth,
+        _configuration.chunkHeight
       );
     }
 
@@ -233,11 +228,13 @@ function infiniteCanvas(
       };
 
       var width =
-        Math.min(renderCoordinates.x + configuration.chunkWidth, canvas.width) -
-        chunkSourceCoordinates.x;
+        Math.min(
+          renderCoordinates.x + _configuration.chunkWidth,
+          canvas.width
+        ) - chunkSourceCoordinates.x;
       var height =
         Math.min(
-          renderCoordinates.y + configuration.chunkHeight,
+          renderCoordinates.y + _configuration.chunkHeight,
           canvas.height
         ) - chunkSourceCoordinates.y;
 
@@ -245,8 +242,8 @@ function infiniteCanvas(
       if (width <= 0 || height <= 0) return;
 
       var putLocation = {
-        x: configuration.chunkWidth - width,
-        y: configuration.chunkHeight - height,
+        x: _configuration.chunkWidth - width,
+        y: _configuration.chunkHeight - height,
       };
 
       if (chunkWorldCoordinates.x >= infinity.position.x) {
@@ -258,18 +255,18 @@ function infiniteCanvas(
       }
 
       if (chunks[key].src) {
-        offscreenRenderCtx?.drawImage(chunks[key], 0, 0);
+        _offscreenRenderCtx?.drawImage(chunks[key], 0, 0);
       }
 
       // ..clear the visible part of the chunk
-      offscreenRenderCtx?.clearRect(
+      _offscreenRenderCtx?.clearRect(
         putLocation.x,
         putLocation.y,
         width,
         height
       );
       // ..render the contents of the main canvas to the offscreen context
-      offscreenRenderCtx?.drawImage(
+      _offscreenRenderCtx?.drawImage(
         canvas,
         chunkSourceCoordinates.x,
         chunkSourceCoordinates.y,
@@ -280,24 +277,24 @@ function infiniteCanvas(
         width,
         height
       );
-      if (configuration.debugMode) {
-        offscreenRenderCtx?.strokeRect(
+      if (_configuration.debugMode) {
+        _offscreenRenderCtx?.strokeRect(
           0,
           0,
-          configuration.chunkWidth,
-          configuration.chunkHeight
+          _configuration.chunkWidth,
+          _configuration.chunkHeight
         );
-        offscreenRenderCtx?.fillText(key, 15, 15);
+        _offscreenRenderCtx?.fillText(key, 15, 15);
       }
       // ..serialize the offscreen context
       infinity.chunks[key].src =
-        offscreenRenderCtx?.canvas.toDataURL() as string;
+        _offscreenRenderCtx?.canvas.toDataURL() as string;
       // ..finally, clear up the offscreen context so the contents won't be duplicated to other chunks later in this loop
-      offscreenRenderCtx?.clearRect(
+      _offscreenRenderCtx?.clearRect(
         0,
         0,
-        configuration.chunkWidth,
-        configuration.chunkHeight
+        _configuration.chunkWidth,
+        _configuration.chunkHeight
       );
     });
   };
@@ -317,6 +314,21 @@ function infiniteCanvas(
     }
   };
 
+  const moveBy = function (dx: number, dy: number, render?: boolean) {
+    render = render === undefined ? true : render;
+    infinity.position.x += dx;
+    infinity.position.y += dy;
+
+    if (render) {
+      renderChunks(getChunksInViewport());
+    }
+  };
+
+  const refresh = function () {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    infinity.moveBy(0, 0);
+  };
+
   // expects a chunk-id, ex "2, 3" and an <img></img> with a src
   const loadChunk = function (chunkId: string | number, chunk: any) {
     infinity.chunks[chunkId] = chunk;
@@ -332,7 +344,7 @@ function infiniteCanvas(
     chunks: {} as { [key: string]: HTMLImageElement },
     canvas: canvas,
     ctx: ctx,
-    configuration: configuration,
+    configuration: _configuration,
     debugMode: debug ?? false,
     updateChunks,
     moveBy,
