@@ -22,19 +22,21 @@ const render = () => {
   var col = 0;
   inf_ctx.updateChunks();
   inf_ctx.refresh();
+
   imageData.map((item) => {
     var base_image = new Image();
     base_image.onload = () => {
-      base_image.width = 100;
-      base_image.height = 100;
+      base_image.style.position = "fixed";
       base_image.style.objectFit = "fit";
+      base_image.style.maxWidth = size + "px";
+      base_image.style.maxHeight = size + "px";
       inf_ctx.loadChunk(id, base_image);
       inf_ctx.refresh();
     };
     base_image.src = item;
     var id = row + ", " + col;
     row++;
-    if (row > 5) {
+    if (row > 3) {
       row = 0;
       col++;
     }
@@ -90,11 +92,6 @@ const render = () => {
 
     var zoom = 1 + -wheel / 2;
     ctx.scale(zoom, zoom);
-    inf_ctx.configuration = {
-      chunkHeight: size / zoom,
-      chunkWidth: size / zoom,
-      debugMode: debug,
-    };
     inf_ctx.refresh();
   });
 };

@@ -9,4 +9,5 @@ body {
 
 canvas {
   border: 10px solid #333;
+  background-color: #111;
 }

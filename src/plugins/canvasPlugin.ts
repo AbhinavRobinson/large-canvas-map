@@ -30,7 +30,7 @@ interface infinityProps {
   updateChunks: () => void;
   moveBy: (dx: number, dy: number, render?: boolean) => void;
   moveTo: (x: number, y: number, render?: boolean) => void;
-  refresh: () => void;
+  refresh: (width?: number, height?: number) => void;
   getAllChunks: () => {
     [key: string]: HTMLImageElement;
   };
@@ -180,7 +180,9 @@ function infiniteCanvas(
         ctx.drawImage(
           infinity.chunks[key],
           renderCoordinate.x,
-          renderCoordinate.y
+          renderCoordinate.y,
+          chunkWidth,
+          chunkHeight
         );
       } catch (error) {
         if (error.name === "NS_ERROR_NOT_AVAILABLE") {
@@ -280,17 +282,7 @@ function infiniteCanvas(
 
       if (_offscreenRenderCtx) {
         if (chunks[key].src) {
-          _offscreenRenderCtx.drawImage(
-            chunks[key],
-            0,
-            0,
-            chunkWidth,
-            chunkHeight,
-            0,
-            0,
-            chunkWidth,
-            chunkHeight
-          );
+          _offscreenRenderCtx.drawImage(chunks[key], 0, 0);
         }
 
         // ..clear the visible part of the chunk
@@ -300,6 +292,7 @@ function infiniteCanvas(
           width,
           height
         );
+
         // ..render the contents of the main canvas to the offscreen context
         _offscreenRenderCtx.drawImage(
           canvas,
@@ -312,6 +305,8 @@ function infiniteCanvas(
           width,
           height
         );
+
+        _offscreenRenderCtx.fillStyle = "red";
         if (_configuration.debugMode) {
           _offscreenRenderCtx.strokeRect(
             0,
@@ -321,9 +316,11 @@ function infiniteCanvas(
           );
           _offscreenRenderCtx.fillText(key, 15, 15);
         }
+
         // ..serialize the offscreen context
         infinity.chunks[key].src =
           _offscreenRenderCtx.canvas.toDataURL() as string;
+
         // ..finally, clear up the offscreen context so the contents won't be duplicated to other chunks later in this loop
         _offscreenRenderCtx.clearRect(
           0,
@@ -359,9 +356,14 @@ function infiniteCanvas(
     }
   };
 
-  const refresh = function () {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    infinity.moveBy(0, 0);
+  const refresh = function (width?: number, height?: number) {
+    if (width !== undefined && height !== undefined) {
+      ctx.clearRect(0, 0, width, height);
+      infinity.moveBy(0, 0);
+    } else {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      infinity.moveBy(0, 0);
+    }
   };
 
   // expects a chunk-id, ex "2, 3" and an <img></img> with a src
