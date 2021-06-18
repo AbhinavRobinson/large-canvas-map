@@ -14,7 +14,7 @@ const render = () => {
   canvas.width = window.innerWidth - 20;
   canvas.height = window.innerHeight - 20;
 
-  var size = 1000;
+  var size = 50;
   var debug = true;
 
   var inf_ctx = infiniteCanvas(ctx, debug, size, size);
@@ -98,20 +98,4 @@ const render = () => {
 
 export default render;
 
-const imageData = [
-  images.image_1,
-  images.image_2,
-  images.image_3,
-  images.image_4,
-  images.image_5,
-  images.image_6,
-  images.image_7,
-  images.image_8,
-  images.image_9,
-  images.image_10,
-  images.image_11,
-  images.image_12,
-  images.image_13,
-  images.image_14,
-  images.image_15,
-];
+const imageData = [images.image_1];
